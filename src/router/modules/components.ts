@@ -12,7 +12,7 @@ export default {
   children: [
     {
       path: "/components/dialog",
-      name: "Dialog",
+      name: "DialogPage",
       component: () => import("@/views/components/dialog/index.vue"),
       meta: {
         title: $t("menus.hsdialog"),
@@ -32,6 +32,15 @@ export default {
       }
     },
     {
+      path: "/components/segmented",
+      name: "Segmented",
+      component: () => import("@/views/components/segmented/index.vue"),
+      meta: {
+        title: $t("menus.hssegmented"),
+        extraIcon: "IF-pure-iconfont-new svg"
+      }
+    },
+    {
       path: "/components/waterfall",
       name: "Waterfall",
       component: () => import("@/views/components/waterfall/index.vue"),
@@ -42,7 +51,7 @@ export default {
     },
     {
       path: "/components/video",
-      name: "Video",
+      name: "VideoPage",
       component: () => import("@/views/components/video/index.vue"),
       meta: {
         title: $t("menus.hsvideo")
@@ -50,7 +59,7 @@ export default {
     },
     {
       path: "/components/map",
-      name: "Map",
+      name: "MapPage",
       component: () => import("@/views/components/map/index.vue"),
       meta: {
         title: $t("menus.hsmap"),
@@ -82,7 +91,7 @@ export default {
     },
     {
       path: "/components/button",
-      name: "Button",
+      name: "ButtonPage",
       component: () => import("@/views/components/button/index.vue"),
       meta: {
         title: $t("menus.hsbutton")
