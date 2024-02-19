@@ -4,12 +4,17 @@ import { emitter } from "@/utils/mitt";
 import { RouteConfigs } from "../../types";
 import { useTags } from "../../hooks/useTag";
 import { routerArrays } from "@/layout/types";
-import { isEqual, isAllEmpty } from "@pureadmin/utils";
+import { useFullscreen, onClickOutside } from "@vueuse/core";
 import { handleAliveRoute, getTopMenu } from "@/router/utils";
 import { useSettingStoreHook } from "@/store/modules/settings";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
-import { ref, watch, unref, toRaw, nextTick, onBeforeMount } from "vue";
-import { useResizeObserver, useDebounceFn, useFullscreen } from "@vueuse/core";
+import { ref, watch, unref, toRaw, nextTick, onBeforeUnmount } from "vue";
+import {
+  delay,
+  isEqual,
+  isAllEmpty,
+  useResizeObserver
+} from "@pureadmin/utils";
 
 import ExitFullscreen from "@iconify-icons/ri/fullscreen-exit-fill";
 import Fullscreen from "@iconify-icons/ri/fullscreen-fill";
@@ -33,6 +38,7 @@ const {
   pureSetting,
   activeIndex,
   getTabStyle,
+  isScrolling,
   iconIsActive,
   linkIsActive,
   currentSelect,
@@ -49,25 +55,28 @@ const {
 const tabDom = ref();
 const containerDom = ref();
 const scrollbarDom = ref();
+const contextmenuRef = ref();
 const isShowArrow = ref(false);
 const topPath = getTopMenu()?.path;
 const { VITE_HIDE_HOME } = import.meta.env;
 const { isFullscreen, toggle } = useFullscreen();
 
-const dynamicTagView = () => {
+const dynamicTagView = async () => {
+  await nextTick();
   const index = multiTags.value.findIndex(item => {
-    if (item.query) {
+    if (!isAllEmpty(route.query)) {
       return isEqual(route.query, item.query);
-    } else if (item.params) {
+    } else if (!isAllEmpty(route.params)) {
       return isEqual(route.params, item.params);
     } else {
-      return item.path === route.path;
+      return route.path === item.path;
     }
   });
   moveToView(index);
 };
 
 const moveToView = async (index: number): Promise<void> => {
+  await nextTick();
   const tabNavPadding = 10;
   if (!instance.refs["dynamic" + index]) return;
   const tabItemEl = instance.refs["dynamic" + index][0];
@@ -77,9 +86,6 @@ const moveToView = async (index: number): Promise<void> => {
   const scrollbarDomWidth = scrollbarDom.value
     ? scrollbarDom.value?.offsetWidth
     : 0;
-
-  // 获取视图更新后dom
-  await nextTick();
 
   // 已有标签页总长度（包含溢出部分）
   const tabDomWidth = tabDom.value ? tabDom.value?.offsetWidth : 0;
@@ -133,33 +139,62 @@ const handleScroll = (offset: number): void => {
       translateX.value = 0;
     }
   }
+  isScrolling.value = false;
 };
 
-function dynamicRouteTag(value: string, parentPath: string): void {
+const handleWheel = (event: WheelEvent): void => {
+  isScrolling.value = true;
+  const scrollIntensity = Math.abs(event.deltaX) + Math.abs(event.deltaY);
+  let offset = 0;
+  if (event.deltaX < 0) {
+    offset = scrollIntensity > 0 ? scrollIntensity : 100;
+  } else {
+    offset = scrollIntensity > 0 ? -scrollIntensity : -100;
+  }
+
+  smoothScroll(offset);
+};
+
+const smoothScroll = (offset: number): void => {
+  const scrollAmount = 20; // 每帧滚动的距离
+  let remaining = Math.abs(offset);
+
+  const scrollStep = () => {
+    const scrollOffset = Math.sign(offset) * Math.min(scrollAmount, remaining);
+    handleScroll(scrollOffset);
+    remaining -= Math.abs(scrollOffset);
+
+    if (remaining > 0) {
+      requestAnimationFrame(scrollStep);
+    }
+  };
+
+  requestAnimationFrame(scrollStep);
+};
+
+function dynamicRouteTag(value: string): void {
   const hasValue = multiTags.value.some(item => {
     return item.path === value;
   });
 
-  function concatPath(arr: object[], value: string, parentPath: string) {
+  function concatPath(arr: object[], value: string) {
     if (!hasValue) {
       arr.forEach((arrItem: any) => {
-        const pathConcat = parentPath + arrItem.path;
-        if (arrItem.path === value || pathConcat === value) {
+        if (arrItem.path === value) {
           useMultiTagsStoreHook().handleTags("push", {
             path: value,
-            parentPath: `/${parentPath.split("/")[1]}`,
             meta: arrItem.meta,
             name: arrItem.name
           });
         } else {
           if (arrItem.children && arrItem.children.length > 0) {
-            concatPath(arrItem.children, value, parentPath);
+            concatPath(arrItem.children, value);
           }
         }
       });
     }
   }
-  concatPath(router.options.routes as any, value, parentPath);
+  concatPath(router.options.routes as any, value);
 }
 
 /** 刷新路由 */
@@ -169,7 +204,7 @@ function onFresh() {
     path: "/redirect" + fullPath,
     query
   });
-  handleAliveRoute(route as toRouteType, "refresh");
+  handleAliveRoute(route as ToRouteType, "refresh");
 }
 
 function deleteDynamicTag(obj: any, current: any, tag?: string) {
@@ -242,7 +277,7 @@ function deleteDynamicTag(obj: any, current: any, tag?: string) {
 
 function deleteMenu(item, tag?: string) {
   deleteDynamicTag(item, item.path, tag);
-  handleAliveRoute(route as toRouteType);
+  handleAliveRoute(route as ToRouteType);
 }
 
 function onClickDrop(key, item, selectRoute?: RouteConfigs) {
@@ -290,7 +325,7 @@ function onClickDrop(key, item, selectRoute?: RouteConfigs) {
         length: multiTags.value.length
       });
       router.push(topPath);
-      handleAliveRoute(route as toRouteType);
+      handleAliveRoute(route as ToRouteType);
       break;
     case 6:
       // 整体页面全屏
@@ -331,6 +366,7 @@ function handleCommand(command: any) {
 
 /** 触发右键中菜单的点击事件 */
 function selectTag(key, item) {
+  closeMenu();
   onClickDrop(key, item, currentSelect.value);
 }
 
@@ -424,7 +460,7 @@ function openMenu(tag, e) {
   }
 
   currentSelect.value = tag;
-  const menuMinWidth = 105;
+  const menuMinWidth = 140;
   const offsetLeft = unref(containerDom).getBoundingClientRect().left;
   const offsetWidth = unref(containerDom).offsetWidth;
   const maxLeft = offsetWidth - menuMinWidth;
@@ -465,7 +501,21 @@ function tagOnClick(item) {
   // showMenuModel(item?.path, item?.query);
 }
 
-onBeforeMount(() => {
+onClickOutside(contextmenuRef, closeMenu, {
+  detectIframe: true
+});
+
+watch(route, () => {
+  activeIndex.value = -1;
+  dynamicTagView();
+});
+
+watch(isFullscreen, () => {
+  tagsViews[6].icon = Fullscreen;
+  tagsViews[6].text = $t("buttons.hswholeFullScreen");
+});
+
+onMounted(() => {
   if (!instance) return;
 
   // 根据当前路由初始化操作标签页的禁用状态
@@ -483,63 +533,51 @@ onBeforeMount(() => {
   });
 
   //  接收侧边栏切换传递过来的参数
-  emitter.on("changLayoutRoute", ({ indexPath, parentPath }) => {
-    dynamicRouteTag(indexPath, parentPath);
+  emitter.on("changLayoutRoute", indexPath => {
+    dynamicRouteTag(indexPath);
     setTimeout(() => {
       showMenuModel(indexPath);
     });
   });
+
+  useResizeObserver(scrollbarDom, dynamicTagView);
+  delay().then(() => dynamicTagView());
 });
 
-watch([route], () => {
-  activeIndex.value = -1;
-  dynamicTagView();
-});
-
-watch(isFullscreen, () => {
-  tagsViews[6].icon = Fullscreen;
-  tagsViews[6].text = $t("buttons.hswholeFullScreen");
-});
-
-onMounted(() => {
-  useResizeObserver(
-    scrollbarDom,
-    useDebounceFn(() => {
-      dynamicTagView();
-    }, 200)
-  );
+onBeforeUnmount(() => {
+  // 解绑`tagViewsChange`、`tagViewsShowModel`、`changLayoutRoute`公共事件，防止多次触发
+  emitter.off("tagViewsChange");
+  emitter.off("tagViewsShowModel");
+  emitter.off("changLayoutRoute");
 });
 </script>
 
 <template>
-  <div ref="containerDom" class="tags-view" v-if="!showTags">
+  <div v-if="!showTags" ref="containerDom" class="tags-view">
     <span v-show="isShowArrow" class="arrow-left">
       <IconifyIconOffline :icon="ArrowLeftSLine" @click="handleScroll(200)" />
     </span>
-    <div ref="scrollbarDom" class="scroll-container">
-      <div class="tab select-none" ref="tabDom" :style="getTabStyle">
+    <div
+      ref="scrollbarDom"
+      class="scroll-container"
+      @wheel.prevent="handleWheel"
+    >
+      <div ref="tabDom" class="tab select-none" :style="getTabStyle">
         <div
-          :ref="'dynamic' + index"
           v-for="(item, index) in multiTags"
+          :ref="'dynamic' + index"
           :key="index"
-          :class="[
-            'scroll-item is-closable',
-            linkIsActive(item),
-            route.path === item.path && showModel === 'card'
-              ? 'card-active'
-              : ''
-          ]"
+          :class="['scroll-item is-closable', linkIsActive(item)]"
           @contextmenu.prevent="openMenu(item, $event)"
           @mouseenter.prevent="onMouseenter(index)"
           @mouseleave.prevent="onMouseleave(index)"
           @click="tagOnClick(item)"
         >
-          <router-link
-            :to="item.path"
-            class="dark:!text-text_color_primary dark:hover:!text-primary"
+          <span
+            class="tag-title dark:!text-text_color_primary dark:hover:!text-primary"
           >
             {{ transformI18n(item.meta.title) }}
-          </router-link>
+          </span>
           <span
             v-if="
               iconIsActive(item, index) ||
@@ -550,9 +588,9 @@ onMounted(() => {
           >
             <IconifyIconOffline :icon="CloseBold" />
           </span>
-          <div
-            :ref="'schedule' + index"
+          <span
             v-if="showModel !== 'card'"
+            :ref="'schedule' + index"
             :class="[scheduleIsActive(item)]"
           />
         </div>
@@ -565,6 +603,7 @@ onMounted(() => {
     <transition name="el-zoom-in-top">
       <ul
         v-show="visible"
+        ref="contextmenuRef"
         :key="Math.random()"
         :style="getContextMenuStyle"
         class="contextmenu"

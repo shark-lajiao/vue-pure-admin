@@ -5,8 +5,8 @@ import { getRoleList } from "@/api/system";
 import { ElMessageBox } from "element-plus";
 import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
-import { type FormItemProps } from "../utils/types";
-import { type PaginationProps } from "@pureadmin/table";
+import type { FormItemProps } from "../utils/types";
+import type { PaginationProps } from "@pureadmin/table";
 import { reactive, ref, onMounted, h, toRaw } from "vue";
 
 export function useRole() {
@@ -200,7 +200,7 @@ export function useRole() {
               // 实际开发先调用新增接口，再进行下面操作
               chores();
             } else {
-              // 实际开发先调用编辑接口，再进行下面操作
+              // 实际开发先调用修改接口，再进行下面操作
               chores();
             }
           }

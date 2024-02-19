@@ -1,8 +1,9 @@
+import Adaptive from "./adaptive/index.vue";
 import Page from "./page/index.vue";
 import RowDrag from "./drag/row/index.vue";
 import ColumnDrag from "./drag/column/index.vue";
 import Contextmenu from "./contextmenu/index.vue";
-import Execl from "./execl/index.vue";
+import Excel from "./excel/index.vue";
 import Edit from "./edit/index.vue";
 import Watermark from "./watermark/index.vue";
 import Print from "./prints/index.vue";
@@ -13,6 +14,12 @@ const rendContent = (val: string) =>
   `代码位置：src/views/pure-table/high/${val}/index.vue`;
 
 export const list = [
+  {
+    key: "adaptive",
+    content: rendContent("adaptive"),
+    title: "自适应内容区高度",
+    component: Adaptive
+  },
   {
     key: "page",
     content: rendContent("page"),
@@ -46,14 +53,14 @@ export const list = [
   {
     key: "edit",
     content: rendContent("edit"),
-    title: "单元格编辑",
+    title: "单元格修改",
     component: Edit
   },
   {
-    key: "execl",
-    content: rendContent("execl"),
-    title: "导出execl",
-    component: Execl
+    key: "excel",
+    content: rendContent("excel"),
+    title: "导出excel",
+    component: Excel
   },
   {
     key: "print",
@@ -64,7 +71,7 @@ export const list = [
   {
     key: "watermark",
     content: rendContent("watermark"),
-    title: "水印（无法删除的水印哦🤓️）",
+    title: "水印",
     component: Watermark
   },
   {

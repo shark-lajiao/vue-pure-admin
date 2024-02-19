@@ -52,8 +52,7 @@ export default {
               name: "Menu1-2-2",
               meta: {
                 title: $t("menus.hsmenu1-2-2"),
-                keepAlive: true,
-                extraIcon: "IF-pure-iconfont-new svg"
+                keepAlive: true
               }
             }
           ]
@@ -79,4 +78,4 @@ export default {
       }
     }
   ]
-} as RouteConfigsTable;
+} satisfies RouteConfigsTable;

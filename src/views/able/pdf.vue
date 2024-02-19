@@ -17,7 +17,7 @@ const showAllPages = ref(false);
 const rotations = [0, 90, 180, 270];
 
 const source =
-  "https://pure-admin.github.io/pure-admin-doc/pdf/Cookie%E5%92%8CSession%E5%8C%BA%E5%88%AB%E7%94%A8%E6%B3%95.pdf";
+  "https://xiaoxian521.github.io/hyperlink/pdf/Cookie%E5%92%8CSession%E5%8C%BA%E5%88%AB%E7%94%A8%E6%B3%95.pdf";
 
 const handleDocumentRender = () => {
   loading.value = false;
@@ -49,8 +49,8 @@ const onPrint = () => {
       </div>
     </template>
     <div
-      class="h-[calc(100vh-239px)]"
       v-loading="loading"
+      class="h-[calc(100vh-239px)]"
       :element-loading-text="t('status.hsLoad')"
     >
       <div class="flex justify-between items-center h-9">
@@ -59,9 +59,9 @@ const onPrint = () => {
         </div>
         <div v-else>
           <el-pagination
+            v-model:current-page="currentPage"
             background
             layout="prev, slot, next"
-            v-model:current-page="currentPage"
             :page-size="1"
             :total="pageCount"
           >
@@ -98,8 +98,8 @@ const onPrint = () => {
       </div>
       <el-scrollbar>
         <vue-pdf-embed
-          class="h-full container overflow-auto"
           ref="pdfRef"
+          class="h-full container overflow-auto"
           :rotation="rotations[currentRotation]"
           :page="currentPage"
           :source="source"

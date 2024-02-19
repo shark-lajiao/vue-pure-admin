@@ -1,3 +1,50 @@
+# 4.5.0 (2023-06-26)
+
+### ✔️ refactor
+
+- Refactor image crop `ReCropper` component, add more useful functions
+
+### 🎫 Feat
+
+- The menu search function supports pinyin search, such as searching for image cropping, input `tp` or `tupian` and other corresponding pinyin
+- Add long press command and usage example, the long press command supports continuous callback of custom duration
+- Add an example of sensitive word filtering function
+- Add an example of Chinese Pinyin function
+
+### 🐞 Bug fixes
+
+- Fixed `V4.4.0` version, the problem that the page does not cache the page for the first time after the `keepAlive` cache is enabled
+- Fixed the issue that the column setting tick option was not correctly initialized according to the `hide` property when the `RePureTableBar` component was initialized
+
+### 🍏 Perf
+
+- Change `VITE_PUBLIC_PATH` to `./` by default to be compatible with more path scenarios,
+- Compatible with the `OSS` scene where `VITE_PUBLIC_PATH` is `url`, need to upgrade `@pureadin/theme` to the latest version
+
+# 4.4.0 (2023-06-14)
+
+### 🎫 Feat
+
+- Route `meta` adds `activePath` attribute, which can activate a menu (mainly used for routes that pass parameters through `query` or `params`, when they are not displayed in the menu after configuring `showLink: false`, they will be There will be no menu highlighting, but you can get highlighting by setting `activePath` to specify the active menu, `activePath` is the `path` of the specified active menu [View details](https://github.com/pure-admin/vue-pure-admin/commit/58cafbc73ffa27253446ee93077e1e382519ce8a#commitcomment-117834411))
+- Example of advanced usage of `pure-admin-table` to add adaptive content area height
+- Add anti-shake, throttling and text copy instructions and standardize the prompts when custom instructions are used incorrectly and add usage examples
+- Add `el-empty` component when the `notice` message prompts the component to have empty data
+- Example code of functional popup window adding subcomponent `prop` as `primitive` type example
+- Add `vscode-docker` plugin
+
+### 🐞 Bug fixes
+
+- Fix internationalization switch to English mode and refresh will return to Chinese mode
+- Fixed the problem that the pop-up mask of the search menu function did not cover the left menu
+
+### 🍏 Perf
+
+- Page switching performance optimization, regardless of the network, the speed of page switching logic is almost `3-4` times faster than before [View optimization details](https://github.com/pure-admin/vue-pure-admin/pull/600#issuecomment-1586094078)
+- Optimized tab page operation-routing parameter transfer mode usage
+- All tables in the system management are changed to adaptive content area height, need to upgrade `@pureadmin/table` to the latest version
+- Use the `useResizeObserver` function of `vueuse` to replace the `v-resize` custom directive, and the performance will be better from the performance after testing
+- For unbound public events, unbind when the page is destroyed
+
 # 4.3.0 (2023-06-04)
 
 ### 🎫 Feat
@@ -160,7 +207,7 @@
 ### ✔️ refactor
 
 - Completely removed `vxe-table`, after removal, the overall package size of the full version is reduced by `1.82MB`, and the initial startup time is basically the same as the lite version 🐮
-  [Click here to see Why Removed? How to integrate it yourself?](https://pure-admin.github.io/pure-admin-doc/pages/FAQ/#%E5%B9%B3%E5%8F%B0%E5%9C%A8-v3-9-4-%E7%89%88%E6%9C%AC%E5%AE%8C%E5%85%A8%E7%A7%BB%E9%99%A4%E4%BA%86-vxe-table-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%A7%BB%E9%99%A4-%E5%A6%82%E4%BD%95%E8%87%AA%E8%A1%8C%E9%9B%86%E6%88%90)
+  [Click here to see Why Removed? How to integrate it yourself?](https://yiming_chang.gitee.io/pure-admin-doc/pages/FAQ/#%E5%B9%B3%E5%8F%B0%E5%9C%A8-v3-9-4-%E7%89%88%E6%9C%AC%E5%AE%8C%E5%85%A8%E7%A7%BB%E9%99%A4%E4%BA%86-vxe-table-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%A7%BB%E9%99%A4-%E5%A6%82%E4%BD%95%E8%87%AA%E8%A1%8C%E9%9B%86%E6%88%90)
 
 ### 🎫 Feat
 
@@ -275,7 +322,7 @@
 - Add front-end single sign-on, test address https://yiming_chang.gitee.io/vue-pure-admin/#/pure-table/index?username=sso&roles=admin&accessToken=eyJhbGciOiJIUzUxMiJ9.admin
 - Add more examples for [@pureadmin/table](https://github.com/pure-admin/pure-admin-table) and `element-plus` [table](https://element-plus.org /zh-CN/component/table.html) example remains the same
 - Rich watermark function page (supports customizing various colors, shadows, text, additional attributes, setting undeletable watermarks and setting watermarks for specified elements)
-- Optimize the menu, add `MenuArrowIconNoTransition` global configuration, configure it in `public/serverConfig.json`, for the left menu mode, the menu expansion can be set `MenuArrowIconNoTransition: true` to solve
+- Optimize the menu, add `MenuArrowIconNoTransition` global configuration, configure it in `public/platform-config.json`, for the left menu mode, the menu expansion can be set `MenuArrowIconNoTransition: true` to solve
 - Replacement form designer component demo
 
 ### 🐞 Bug fixes
@@ -373,7 +420,7 @@
 
 ### ✔️ refactor
 
-- Replace `unocss` with `tailwindcss`, add `tailwindcss` [documentation](https://pure-admin.github.io/pure-admin-doc/pages/39156f/)
+- Replace `unocss` with `tailwindcss`, add `tailwindcss` [documentation](https://yiming_chang.gitee.io/pure-admin-doc/pages/tailwindcss/)
 
 ### 🐞 Bug fixes
 
@@ -418,7 +465,7 @@
 - Add full routing configuration table type declaration
 - Add virtual listing page demo
 - Add `PDF` preview page demo
-- Added export `execl` page demo
+- Added export `excel` page demo
 - Added blank page demo without `Layout`
 
 ### ✔️ refactor

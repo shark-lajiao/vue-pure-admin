@@ -2,10 +2,10 @@ import { storeToRefs } from "pinia";
 import { getConfig } from "@/config";
 import { useRouter } from "vue-router";
 import { emitter } from "@/utils/mitt";
-import { routeMetaType } from "../types";
 import userAvatar from "@/assets/user.jpg";
 import { getTopMenu } from "@/router/utils";
 import { useGlobal } from "@pureadmin/utils";
+import type { routeMetaType } from "../types";
 import { transformI18n } from "@/plugins/i18n";
 import { router, remainingPaths } from "@/router";
 import { computed, type CSSProperties } from "vue";
@@ -114,39 +114,19 @@ export function useNav() {
     }
   }
 
-  function menuSelect(indexPath: string, routers): void {
-    if (wholeMenus.value.length === 0) return;
-    if (isRemaining(indexPath)) return;
-    let parentPath = "";
-    const parentPathIndex = indexPath.lastIndexOf("/");
-    if (parentPathIndex > 0) {
-      parentPath = indexPath.slice(0, parentPathIndex);
-    }
-    /** 找到当前路由的信息 */
-    function findCurrentRoute(indexPath: string, routes) {
-      if (!routes) return console.error(errorInfo);
-      return routes.map(item => {
-        if (item.path === indexPath) {
-          if (item.redirect) {
-            findCurrentRoute(item.redirect, item.children);
-          } else {
-            /** 切换左侧菜单 通知标签页 */
-            emitter.emit("changLayoutRoute", {
-              indexPath,
-              parentPath
-            });
-          }
-        } else {
-          if (item.children) findCurrentRoute(indexPath, item.children);
-        }
-      });
-    }
-    findCurrentRoute(indexPath, routers);
+  function menuSelect(indexPath: string) {
+    if (wholeMenus.value.length === 0 || isRemaining(indexPath)) return;
+    emitter.emit("changLayoutRoute", indexPath);
   }
 
   /** 判断路径是否参与菜单 */
-  function isRemaining(path: string): boolean {
+  function isRemaining(path: string) {
     return remainingPaths.includes(path);
+  }
+
+  /** 获取`logo` */
+  function getLogo() {
+    return new URL("/logo.svg", import.meta.url).href;
   }
 
   return {
@@ -164,6 +144,7 @@ export function useNav() {
     menuSelect,
     handleResize,
     resolvePath,
+    getLogo,
     isCollapse,
     pureApp,
     username,

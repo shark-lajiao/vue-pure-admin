@@ -5,6 +5,7 @@ export default {
   path: "/about",
   redirect: "/about/index",
   meta: {
+    icon: "info",
     title: $t("menus.hsAbout"),
     rank: about
   },
@@ -18,4 +19,4 @@ export default {
       }
     }
   ]
-} as RouteConfigsTable;
+} satisfies RouteConfigsTable;

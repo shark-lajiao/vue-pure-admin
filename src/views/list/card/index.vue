@@ -6,7 +6,6 @@ import { ElMessageBox } from "element-plus";
 import { ref, onMounted, nextTick } from "vue";
 import dialogForm from "./components/DialogForm.vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import Search from "@iconify-icons/ep/search";
 import AddFill from "@iconify-icons/ri/add-circle-line";
 
 defineOptions({
@@ -102,8 +101,8 @@ const handleManageProduct = product => {
         新建产品
       </el-button>
       <el-input
-        style="width: 300px"
         v-model="searchValue"
+        style="width: 300px"
         placeholder="请输入产品名称"
         clearable
       >
@@ -111,7 +110,7 @@ const handleManageProduct = product => {
           <el-icon class="el-input__icon">
             <IconifyIconOffline
               v-show="searchValue.length === 0"
-              :icon="Search"
+              icon="search"
             />
           </el-icon>
         </template>
@@ -123,7 +122,6 @@ const handleManageProduct = product => {
       element-loading-svg-view-box="-10, -10, 50, 50"
     >
       <el-empty
-        description="暂无数据"
         v-show="
           productList
             .slice(
@@ -134,6 +132,7 @@ const handleManageProduct = product => {
               v.name.toLowerCase().includes(searchValue.toLowerCase())
             ).length === 0
         "
+        :description="`${searchValue} 产品不存在`"
       />
       <template v-if="pagination.total > 0">
         <el-row :gutter="16">
@@ -161,8 +160,8 @@ const handleManageProduct = product => {
           </el-col>
         </el-row>
         <el-pagination
-          class="float-right"
           v-model:currentPage="pagination.current"
+          class="float-right"
           :page-size="pagination.pageSize"
           :total="pagination.total"
           :page-sizes="[12, 24, 36]"
